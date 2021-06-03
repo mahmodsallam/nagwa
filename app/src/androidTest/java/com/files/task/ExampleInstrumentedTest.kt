@@ -1,4 +1,4 @@
-package com.ipMagix.task
+package com.files.task
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

@@ -14,7 +14,7 @@
         android:id="@+id/rvUsers"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        tools:listitem="@layout/item_movie"
+        tools:listitem="@layout/item_file"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

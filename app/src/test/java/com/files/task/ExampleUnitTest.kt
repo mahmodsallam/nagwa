@@ -1,4 +1,4 @@
-package com.ipMagix.task
+package com.files.task
 
 import org.junit.Test
 
