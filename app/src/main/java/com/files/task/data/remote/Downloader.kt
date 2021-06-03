@@ -1,7 +1,11 @@
 package com.files.task.data.remote
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Environment
+import android.provider.DocumentsContract
 import android.util.Log
+import androidx.core.app.ActivityCompat.startActivityForResult
 import okhttp3.*
 import okio.IOException
 import java.io.File
@@ -75,7 +79,7 @@ class Downloader(
             var inputStream: InputStream? = null
             var outputStream: OutputStream? = null
             try {
-                val fileReader = ByteArray(4096)
+                val fileReader = ByteArray(4096*2)
                 val fileSize = body?.contentLength()
                 var fileSizeDownloaded: Long = 0
                 inputStream = body?.byteStream()
@@ -105,5 +109,6 @@ class Downloader(
             false
         }
     }
+
 
 }

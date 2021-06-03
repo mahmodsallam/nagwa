@@ -1,10 +1,11 @@
 package com.files.task.presentation
 
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -60,8 +61,12 @@ class MainActivity : AppCompatActivity(), FilesAdapter.FileClickListener {
         val gson = Gson()
         val files =
             gson.fromJson<Array<FilePojo>>(jsonString, Array<FilePojo>::class.java).toMutableList()
-        for (item in files){
-            item.isExists=isFileExists(item?.name , item?.type.toLowerCase())
+        for (item in files) {
+            var fileType = if (item.type == "PDF")
+                "pdf"
+            else
+                "mp4"
+            item.isExists = isFileExists(item.name, fileType)
         }
         adapter.setfilesList(files)
         adapter.setContext(this)
@@ -80,13 +85,18 @@ class MainActivity : AppCompatActivity(), FilesAdapter.FileClickListener {
         else
             "mp4"
 
-        mainViewModel.downloadFile(file?.url!!, file.name, fileType,position.toString())
         mainViewModel.progess.observe(this, androidx.lifecycle.Observer {
             val args = Bundle()
             args.putInt("progress", (it as FileProgress).progress)
             adapter.notifyItemChanged(it.id.toInt(), args)
 
         })
+
+        if (file?.isExists!!) {
+            openFile(Uri.fromFile(getFilePath(file?.name, fileType)), fileType)
+        } else {
+            mainViewModel.downloadFile(file?.url!!, file.name, fileType, position.toString())
+        }
 
 
     }
@@ -104,14 +114,27 @@ class MainActivity : AppCompatActivity(), FilesAdapter.FileClickListener {
         return false
     }
 
-    private fun isFileExists(fileName:String , fileType:String):Boolean{
-        val path= Environment.getExternalStorageDirectory()
+    private fun isFileExists(fileName: String, fileType: String): Boolean {
+        val path = Environment.getExternalStorageDirectory()
             .toString() + File.separator + fileName + "." + fileType
-        val fileDownloaded  = File(path)
+        val fileDownloaded = File(path)
         return fileDownloaded.isFile
     }
 
+    private fun openFile(pickerInitialUri: Uri, fileType: String) {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/$fileType"
+            data=pickerInitialUri
+            flags=Intent.FLAG_ACTIVITY_NO_HISTORY
+        }
 
+        this.startActivityForResult(intent , 0 )
+    }
 
+    private fun getFilePath(fileName: String, fileType: String): File {
+        val path = File(Environment.getExternalStorageDirectory().absolutePath+"/"+fileName + "." + fileType)
+        return path
+    }
 
 }
