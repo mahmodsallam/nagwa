@@ -3,6 +3,7 @@ package com.files.task.presentation
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,7 @@ import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item_file.view.*
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
@@ -58,6 +60,9 @@ class MainActivity : AppCompatActivity(), FilesAdapter.FileClickListener {
         val gson = Gson()
         val files =
             gson.fromJson<Array<FilePojo>>(jsonString, Array<FilePojo>::class.java).toMutableList()
+        for (item in files){
+            item.isExists=isFileExists(item?.name , item?.type.toLowerCase())
+        }
         adapter.setfilesList(files)
         adapter.setContext(this)
         adapter.setPhotoClickListener(this)
@@ -68,7 +73,7 @@ class MainActivity : AppCompatActivity(), FilesAdapter.FileClickListener {
 
     override fun onFileClickListener(position: Int) {
         var file = adapter.getFileList()?.get(position)
-        adapter.notifyItemChanged(position)
+
         var fileType = ""
         fileType = if (file?.type.equals("PDF"))
             "pdf"
@@ -77,14 +82,13 @@ class MainActivity : AppCompatActivity(), FilesAdapter.FileClickListener {
 
         mainViewModel.downloadFile(file?.url!!, file.name, fileType,position.toString())
         mainViewModel.progess.observe(this, androidx.lifecycle.Observer {
-            file.progress
-            Toast.makeText(this, it?.toString(), Toast.LENGTH_SHORT).show()
             val args = Bundle()
             args.putInt("progress", (it as FileProgress).progress)
             adapter.notifyItemChanged(it.id.toInt(), args)
 
-
         })
+
+
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -99,6 +103,15 @@ class MainActivity : AppCompatActivity(), FilesAdapter.FileClickListener {
         }
         return false
     }
+
+    private fun isFileExists(fileName:String , fileType:String):Boolean{
+        val path= Environment.getExternalStorageDirectory()
+            .toString() + File.separator + fileName + "." + fileType
+        val fileDownloaded  = File(path)
+        return fileDownloaded.isFile
+    }
+
+
 
 
 }

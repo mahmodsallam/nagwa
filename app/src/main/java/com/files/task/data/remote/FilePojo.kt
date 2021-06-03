@@ -5,5 +5,8 @@ data class FilePojo(
     val name: String, // Video 1
     val type: String, // VIDEO
     val url: String ,// https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4
-    var progress:Int=0
+    var progress:Int ,
+    var isExists:Boolean
+
+
 )

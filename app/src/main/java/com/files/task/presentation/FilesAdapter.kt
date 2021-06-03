@@ -84,6 +84,13 @@ class FilesAdapter() :
                 itemView.ivFile.setImageResource(R.drawable.pdf)
             else
                 itemView.ivFile.setImageResource(R.drawable.video)
+
+            if (file.isExists)
+                itemView.iv_file_exists.visibility=View.VISIBLE
+            else {
+                itemView.iv_file_exists.visibility=View.GONE
+
+            }
         }
 
         fun partialBinding(progress:Int?){
