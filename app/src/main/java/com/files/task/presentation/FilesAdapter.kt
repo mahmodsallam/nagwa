@@ -52,7 +52,10 @@ class FilesAdapter() :
         if (payloads.isNotEmpty()){
             var args  = payloads[0] as Bundle
             var progress = args.getInt("progress")
+            if (progress==100)
+                filesList?.get(position)?.isExists=true
             holder.partialBinding(progress)
+
         }
         else {
             super.onBindViewHolder(holder, position, payloads)
@@ -95,6 +98,11 @@ class FilesAdapter() :
 
         fun partialBinding(progress:Int?){
             itemView.pbDownload.progress=progress?:0
+            itemView.pbDownload.visibility=View.VISIBLE
+            if (progress==100){
+                itemView.pbDownload.visibility=View.INVISIBLE
+                itemView.iv_file_exists.visibility=View.VISIBLE
+            }
 
         }
 
