@@ -1,6 +1,8 @@
 package com.files.task.presentation
 
 import android.content.Intent
+import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+import android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -9,8 +11,10 @@ import android.os.Environment
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.FileProvider.getUriForFile
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.files.task.App
+import com.files.task.BuildConfig
 import com.files.task.R
 import com.files.task.data.remote.FilePojo
 import com.files.task.data.remote.FileProgress
@@ -93,7 +97,7 @@ class MainActivity : AppCompatActivity(), FilesAdapter.FileClickListener {
         })
 
         if (file?.isExists!!) {
-            openFile(Uri.fromFile(getFilePath(file?.name, fileType)), fileType)
+            openFile(getFileUri(file?.name, fileType))
         } else {
             mainViewModel.downloadFile(file?.url!!, file.name, fileType, position.toString())
         }
@@ -115,26 +119,28 @@ class MainActivity : AppCompatActivity(), FilesAdapter.FileClickListener {
     }
 
     private fun isFileExists(fileName: String, fileType: String): Boolean {
-        val path = Environment.getExternalStorageDirectory()
+        val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             .toString() + File.separator + fileName + "." + fileType
         val fileDownloaded = File(path)
         return fileDownloaded.isFile
     }
 
-    private fun openFile(pickerInitialUri: Uri, fileType: String) {
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "application/$fileType"
-            data=pickerInitialUri
-            flags=Intent.FLAG_ACTIVITY_NO_HISTORY
-        }
-
-        this.startActivityForResult(intent , 0 )
+    private fun openFile(pickerInitialUri: Uri) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data=pickerInitialUri
+        intent.flags = FLAG_GRANT_READ_URI_PERMISSION or FLAG_GRANT_WRITE_URI_PERMISSION
+        intent.type="*/*"
+        val chooser = Intent.createChooser(intent , "open with")
+        startActivity(chooser)
     }
 
-    private fun getFilePath(fileName: String, fileType: String): File {
-        val path = File(Environment.getExternalStorageDirectory().absolutePath+"/"+fileName + "." + fileType)
-        return path
+    private fun getFileUri(fileName: String, fileType: String): Uri {
+        val file =
+            File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()+ File.separator + fileName + "." + fileType)
+        return getUriForFile(
+            Objects.requireNonNull(applicationContext),
+            BuildConfig.APPLICATION_ID + ".provider", file
+        )
     }
 
 }

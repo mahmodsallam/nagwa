@@ -73,7 +73,7 @@ class Downloader(
         return try {
             val file =
                 File(
-                    Environment.getExternalStorageDirectory()
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                         .toString() + File.separator + fileName + "." + fileType
                 )
             var inputStream: InputStream? = null

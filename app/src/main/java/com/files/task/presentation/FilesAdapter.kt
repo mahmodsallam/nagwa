@@ -95,6 +95,7 @@ class FilesAdapter() :
 
         fun partialBinding(progress:Int?){
             itemView.pbDownload.progress=progress?:0
+
         }
 
         override fun onClick(p0: View?) {
